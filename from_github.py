@@ -7,14 +7,16 @@ csv_file_path = "perfume2.csv"
 # Read the CSV file into a Pandas DataFrame
 df = pd.read_csv(csv_file_path)
 
+# Initialize lists to store different types of scent notes
 TopNotesList = []
 MiddleNotesList = []
 BaseNotesList = []
 all_scents = []
+
+# Extract scent notes from different columns and store them in respective lists
 for i in df["TopNotes"]:
     all_scents.append(str(i).split(" / "))
     TopNotesList.append(str(i).split(" / "))
-
 
 for i in df["MiddleNotes"]:
     all_scents.append(str(i).split(" / "))
@@ -24,30 +26,37 @@ for i in df["BaseNotes"]:
     all_scents.append(str(i).split(" / "))
     BaseNotesList.append(str(i).split(" / "))
 
-
+# Flatten the list of all scent notes and remove duplicates
 all_scents_flatten = list(set([item for sublist in all_scents for item in sublist]))
 all_scents_clear = []
 
+# Remove empty strings from the list of scent notes
 for i in all_scents_flatten:
     if i == "":
         pass
     else:
         all_scents_clear.append(i)
 
-
-
+# Convert the list of clear scent notes to a numpy array and reshape it
 all_scents_clear = np.array(all_scents_clear)
+all_scents_clear = np.reshape(all_scents_clear, (557, 1))
+
+# Initialize lists to store modified scent notes
 TopNotesList2 = []
 MiddleNotesList2 = []
 BaseNotesList2 = []
 
+# Iterate over each scent note
 for scent in all_scents_clear:
-    per_scent_top =[]
+    per_scent_top = []
     per_scent_middle = []
     per_scent_base = []
-    for notes in range(0,len(df["TopNotes"])-1):
+
+    # Iterate over each row in the DataFrame
+    for notes in range(0, len(df["TopNotes"]) - 1):
+        # Check if the scent note is present in top, middle, or base notes
         if scent in TopNotesList[notes]:
-            list_for_scent = ["{}:{}:{}".format(df["Name"][notes],df["Company"][notes],df["Launched"][notes])]
+            list_for_scent = ["{}:{}:{}".format(df["Name"][notes], df["Company"][notes], df["Launched"][notes])]
             per_scent_top.append(list_for_scent)
 
         if scent in MiddleNotesList[notes]:
@@ -58,6 +67,7 @@ for scent in all_scents_clear:
             list_for_scent = ["{}:{}:{}".format(df["Name"][notes], df["Company"][notes], df["Launched"][notes])]
             per_scent_base.append(list_for_scent)
 
+    # Check if there are no occurrences of the scent note in top, middle, or base notes
     if len(per_scent_top) == 0:
         per_scent_top = ""
         TopNotesList2.append(per_scent_top)
@@ -82,43 +92,28 @@ for scent in all_scents_clear:
         per_scent_base = str("-*-".join(["//".join(item) for item in per_scent_base]))
         BaseNotesList2.append(per_scent_base)
 
-all_scents_clear = np.reshape(all_scents_clear,(557,1))
-"""
-print(all_scents_clear[0:50])
-print(all_scents_clear[50:100])
-print(all_scents_clear[100:150])
-print(all_scents_clear[150:200])
-print(all_scents_clear[200:250])
-print(all_scents_clear[250:300])
-print(all_scents_clear[300:350])
-print(all_scents_clear[350:400])
-print(all_scents_clear[400:450])
-print(all_scents_clear[450:500])
-print(all_scents_clear[500:556])
-"""
-TopNotesList2 = np.reshape(np.array(TopNotesList2),(557,1))
-MiddleNotesList2 = np.reshape(np.array(MiddleNotesList2),(557,1))
-BaseNotesList2 = np.reshape(np.array(BaseNotesList2),(557,1))
+# Reshape the lists of modified scent notes
+TopNotesList2 = np.reshape(np.array(TopNotesList2), (557, 1))
+MiddleNotesList2 = np.reshape(np.array(MiddleNotesList2), (557, 1))
+BaseNotesList2 = np.reshape(np.array(BaseNotesList2), (557, 1))
 
-# Reshape the data to make them 1-dimensional
+# Extract 1-dimensional arrays from the reshaped lists
 all_scents_clear_1d = [item[0] for item in all_scents_clear]
 TopNotesList2_1d = [item[0] for item in TopNotesList2]
 MiddleNotesList2_1d = [item[0] for item in MiddleNotesList2]
 BaseNotesList2_1d = [item[0] for item in BaseNotesList2]
 
-
+# Create DataFrames for top, middle, and base notes
 df_top = pd.DataFrame({'Fragrance': all_scents_clear_1d, 'Name:Brand:Launched': TopNotesList2_1d})
-df_top.to_csv("TopNotes.csv",index=False)
-#print(df_top)
-
 df_middle = pd.DataFrame({'Fragrance': all_scents_clear_1d, 'Name:Brand:Launched': MiddleNotesList2_1d})
-df_top.to_csv("MiddleNotes.csv",index=False)
-#print(df_middle)
-
 df_base = pd.DataFrame({'Fragrance': all_scents_clear_1d, 'Name:Brand:Launched': BaseNotesList2_1d})
-df_top.to_csv("BaseNotes.csv",index=False)
-#print(df_base)
 
+# Write DataFrames to CSV files
+df_top.to_csv("TopNotes.csv", index=False)
+df_middle.to_csv("MiddleNotes.csv", index=False)
+df_base.to_csv("BaseNotes.csv", index=False)
+
+# Define categories for scent notes
 categories = ["Herbal", "Green","Mint", "Foodlike", "Vanilla", "Woody","Animalic", "Fruity","Citrus","Floral","Spicy","Camphoraceous"]
 """
 print(all_scents_clear_1d[0:100])
@@ -292,15 +287,18 @@ Floral_all = Floral1+Floral2+Floral3+Floral4+Floral5+Floral6
 Spicy_all = Spicy1+Spicy2+Spicy3+Spicy4+Spicy5+Spicy6
 Camphoraceous_all = Camphoraceous1+Camphoraceous2+Camphoraceous3+Camphoraceous4+Camphoraceous5+Camphoraceous6
 
-All_all = []
-All_all.append([Herbal_all,Green_all,Mint_all,Foodlike_all,
-               Vanilla_all,Woody_all,Animalic_all,Fruity_all,
-               Citrus_all,Floral_all,Spicy_all,Camphoraceous_all])
+# Concatenate all category lists
+All_all = [Herbal_all, Green_all, Mint_all, Foodlike_all, Vanilla_all, Woody_all, Animalic_all, Fruity_all,
+           Citrus_all, Floral_all, Spicy_all, Camphoraceous_all]
+
+# Initialize an empty list to store modified lists
 All_copy = []
+
+# Iterate over each category list
 for i in All_all[0]:
-    new_all = np.concatenate((np.array(i),np.zeros(86-len(i))))
+    # Pad each list with zeros to make them all the same length (86)
+    new_all = np.concatenate((np.array(i), np.zeros(86 - len(i))))
     All_copy.append(list(new_all))
-print(All_copy)
 
 # Assuming All_all[0] is a list of data that you want to use as elements
 data = All_copy
@@ -318,5 +316,3 @@ file_path = 'Categorized_Scents.csv'
 df.to_csv(file_path, index=False)
 
 print(df)
-
-
